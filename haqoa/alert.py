@@ -6,8 +6,10 @@ import pushy
 import requests
 
 from haqoa.consts import appId, androidId
+from haqoa.logs import logging_setup
 
 log = logging.getLogger(__name__)
+logging_setup(log)
 
 
 def config_pushy():
@@ -26,12 +28,20 @@ def config_pushy():
     if not areas:
         log.critical("No areas to subscribe to, aborting")
         exit(9)
+    test_areas = os.getenv('TEST_AREAS', '').strip().split(',')
+    areas.extend(test_areas)
+
     log.info("Subscribing to areas: %s", ','.join(areas))
+    pushy.unsubscribe(areas)
     pushy.subscribe(areas)
 
 
 def background_notification_listener(data):
     logging.warning('Received notification: %s', data)
+    target_areas = set(os.getenv('ALERT_AREAS', '').strip().split(','))
+    alert_areas = set(data.get('citiesIds', '').split(','))
+    delay = None
+
     if 'time' in data:
         data_time = data['time']
         data_time_tz = data_time[-5:]
@@ -48,6 +58,8 @@ def background_notification_listener(data):
             data['time_add_seconds'] = time_add_seconds.isoformat()
             data['time_add_seconds_epoch'] = time_add_seconds.timestamp()
             seconds_remain = int((time_add_seconds - now_timestamp).total_seconds())
+            while seconds_remain > 90:
+                seconds_remain -= 3600
             data['time_seconds_remain'] = seconds_remain
             if seconds_remain < 0:
                 log.warning("Skipping alert, time already passed %d seconds ago. %s", seconds_remain, data)
@@ -56,7 +68,20 @@ def background_notification_listener(data):
             log.warning("Skipping alert, time already passed 10 minutes ago. %s", data)
             return
 
-    send_webhook(data)
+        delay = now_timestamp - timestamp
+
+    if not alert_areas.intersection(target_areas):
+        log.warning("Skipping alert, not in target areas. %s", data)
+    else:
+        send_webhook(data)
+
+    if delay.total_seconds() > 3:
+        log.warning("Alert delivery time %d seconds. Resetting subscription", delay.total_seconds())
+        test_areas = os.getenv('TEST_AREAS', '').strip().split(',')
+        test_areas.extend(target_areas)
+        log.info("Resubscribing to areas: %s", ','.join(test_areas))
+        pushy.unsubscribe(test_areas)
+        pushy.subscribe(test_areas)
 
 
 def send_webhook(data):
