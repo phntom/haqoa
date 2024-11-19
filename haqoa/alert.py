@@ -46,7 +46,7 @@ def register():
                              })
     response.raise_for_status()
     j = response.json()
-    log.info("Registered device: token: %s... | auth %s...", j['token'][:5], j['auth'][:5])
+    log.info("Registered device: token: %s | auth %s", j['token'], j['auth'])
     return j['token'], j['auth']
 
 
@@ -113,6 +113,7 @@ def run():
         exit(9)
 
     with TemporaryDirectory() as tmpdir:
+        log.info("Changing directory to %s", tmpdir)
         os.chdir(tmpdir)
 
         token, auth = os.getenv('OREF_TOKEN', ''), os.getenv('OREF_AUTH', '')

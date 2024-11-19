@@ -8,10 +8,9 @@ logging.basicConfig(
 
 
 def logging_setup(logger):
-    logger.addHandler(logging.StreamHandler())
-
     logger.addHandler(RotatingFileHandler(
         'haqoa.log',
         maxBytes=1024 * 1024,  # 1MB
         backupCount=3
     ))
+
