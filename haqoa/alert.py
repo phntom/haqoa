@@ -113,13 +113,9 @@ def run():
         log.critical("No areas to subscribe to, aborting")
         exit(9)
 
-    with TemporaryDirectory() as tmpdir:
-        log.info("Changing directory to %s", tmpdir)
-        os.chdir(tmpdir)
-
-        token, auth = os.getenv('OREF_TOKEN', ''), os.getenv('OREF_AUTH', '')
-        if not token:
-            token, auth = register()
-        config_pushy(token, auth, areas)
-        pushy.listen()
-        pushy.loop_forever()
+    token, auth = os.getenv('OREF_TOKEN', ''), os.getenv('OREF_AUTH', '')
+    if not token:
+        token, auth = register()
+    config_pushy(token, auth, areas)
+    pushy.listen()
+    pushy.loop_forever()
