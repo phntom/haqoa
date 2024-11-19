@@ -55,6 +55,7 @@ def background_notification_listener(data):
     target_areas = set(os.getenv('ALERT_AREAS', '').strip().split(','))
     alert_areas = set(data.get('citiesIds', '').split(','))
     delay = None
+    data['mqtt'] = os.getenv('OREF_MQTT', "mqtt-{timestamp}.ioref.io")
 
     if 'time' in data:
         data_time = data['time']
