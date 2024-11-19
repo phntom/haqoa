@@ -1,9 +1,5 @@
 #!/usr/bin/env bash
 
-# register.sh
-export OREF_TOKEN=xxx
-export OREF_AUTH=xxx
-
 # https://dist.meser-hadash.org.il/smart-dist/services/anonymous/segments/android?instance=1544803905&locale=iw_IL
 export ADD_SECONDS=90
 export ALERT_AREAS=5000023
@@ -12,5 +8,9 @@ export ALERT_AREAS=5000023
 export WEBHOOK_URL=http://127.0.0.1:8123/api/webhook/xxx
 
 while true; do
-  .venv/bin/python main.py
+  pgrep main.py --full --list-name | grep -q python || for mqtt in 51.17.111.45 51.17.46.233 51.17.209.167; do
+    OREF_MQTT=$mqtt .venv/bin/python main.py
+    sleep 100
+  done
+  sleep 1
 done
