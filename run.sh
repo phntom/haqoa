@@ -11,11 +11,11 @@ while true; do
   sleep 1
   pgrep main.py --full --list-name | grep -q python && continue
 
-  OREF_MQTT=mqtt-45.ioref.io .venv/bin/python main.py &
+  METRICS_PORT=9101 OREF_MQTT=mqtt-45.ioref.io .venv/bin/python main.py &
   sleep 100
-  OREF_MQTT=mqtt-233.ioref.io .venv/bin/python main.py &
+  METRICS_PORT=9102 OREF_MQTT=mqtt-233.ioref.io .venv/bin/python main.py &
   sleep 100
-  OREF_MQTT=mqtt-167.ioref.io .venv/bin/python main.py
+  METRICS_PORT=9103 OREF_MQTT=mqtt-167.ioref.io .venv/bin/python main.py
 
 done
 

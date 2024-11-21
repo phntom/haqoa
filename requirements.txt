@@ -1,3 +1,4 @@
 pushy-python==1.0.12
 requests==2.32.0
 pytz==2024.2
+prometheus-client==0.21.0
